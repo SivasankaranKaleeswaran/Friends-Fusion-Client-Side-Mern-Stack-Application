@@ -24,6 +24,8 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
+import { ClickAwayListener } from "@mui/material";
+
 
 const MyPostWidget = ({ picturePath }) => {
   const dispatch = useDispatch();
@@ -73,7 +75,9 @@ const MyPostWidget = ({ picturePath }) => {
           }}
         />
       </FlexBetween>
+      
       {isImage && (
+        <ClickAwayListener onClickAway={() => setIsImage(false)}>
         <Box
           border={`1px solid ${medium}`}
           borderRadius="5px"
@@ -106,7 +110,7 @@ const MyPostWidget = ({ picturePath }) => {
                 </Box>
                 {image && (
                   <IconButton
-                    onClick={() => setImage(null)}
+                    onClick={() => setImage("null")}
                     sx={{ width: "15%" }}
                   >
                     <DeleteOutlined />
@@ -116,13 +120,14 @@ const MyPostWidget = ({ picturePath }) => {
             )}
           </Dropzone>
         </Box>
+        </ClickAwayListener>
       )}
 
       <Divider sx={{ margin: "1.25rem 0" }} />
 
       <FlexBetween>
         <FlexBetween gap="0.25rem" onClick={() => setIsImage(!isImage)}>
-          <ImageOutlined sx={{ color: mediumMain }} />
+          <ImageOutlined sx={{ color: mediumMain,cursor: "pointer", }} />
           <Typography
             color={mediumMain}
             sx={{ "&:hover": { cursor: "pointer", color: medium } }}

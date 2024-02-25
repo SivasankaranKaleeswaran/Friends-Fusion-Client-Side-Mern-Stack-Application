@@ -31,7 +31,13 @@ const ProfilePage = () => {
 
   return (
     <Box>
+    
+    <Box sx={{position:"sticky", top: 0, zIndex: 1100,
+              maxHeight: 'calc(100vh - 100px)',
+              overflowY: 'auto'}}>
       <Navbar />
+      </Box>
+      
       <Box
         width="100%"
         padding="2rem 6%"
@@ -39,7 +45,11 @@ const ProfilePage = () => {
         gap="2rem"
         justifyContent="center"
       >
-        <Box flexBasis={isNonMobileScreens ? "26%" : undefined}>
+        <Box flexBasis={isNonMobileScreens ? "26%" : undefined} 
+             sx={{position:"sticky", 
+                  top: '64px',
+                  maxHeight: 'calc(100vh - 100px)',
+                  overflowY: 'auto'}}>
           <UserWidget userId={userId} picturePath={user.picturePath} />
           <Box m="2rem 0" />
           <FriendListWidget userId={userId} />

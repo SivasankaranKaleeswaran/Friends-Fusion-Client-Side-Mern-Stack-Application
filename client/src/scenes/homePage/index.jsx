@@ -21,18 +21,21 @@ const HomePage = () => {
         gap="0.5rem"
         justifyContent="space-between"
       >
-        <Box flexBasis={isNonMobileScreens ? "26%" : undefined}>
+        <Box flexBasis={isNonMobileScreens ? "26%" : undefined} sx={{position: 'sticky', 
+              top: 0, 
+              maxHeight: 'calc(100vh - 100px)',
+              overflowY: 'auto'}}>
           <UserWidget userId={_id} picturePath={picturePath} />
         </Box>
         <Box
           flexBasis={isNonMobileScreens ? "42%" : undefined}
-          mt={isNonMobileScreens ? undefined : "2rem"}
+          sx={{ overflowY: 'auto', maxHeight: 'calc(100vh - 100px)', mt: isNonMobileScreens ? undefined : "2rem" }}
         >
           <MyPostWidget picturePath={picturePath} />
           <PostsWidget userId={_id} />
         </Box>
         {isNonMobileScreens && (
-          <Box flexBasis="26%">
+          <Box flexBasis="26%" sx={{ position: 'sticky', top: 0 }}>
             <AdvertWidget />
             <Box m="2rem 0" />
             <FriendListWidget userId={_id} />
