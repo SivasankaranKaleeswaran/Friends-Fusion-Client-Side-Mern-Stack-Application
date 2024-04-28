@@ -4,7 +4,7 @@ import {
   LocationOnOutlined,
   WorkOutlineOutlined,
 } from "@mui/icons-material";
-import { Box, Typography, Divider, useTheme } from "@mui/material";
+import { Box, Typography, Divider, useTheme, Button } from "@mui/material";
 import UserImage from "components/UserImage";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
@@ -13,12 +13,22 @@ import { useEffect, useState } from "react";
 import TextField from "@mui/material/TextField";
 import { ClickAwayListener } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+const textFieldStyle = {
+  padding: "4px 8px",
+  height: "40px",
+  marginDown: "10px",
+};
 
 const UserWidget = ({ userId, picturePath }) => {
   const [user, setUser] = useState(null);
   const [twitterLink, setTwitterLink] = useState("Social Network");
   const [istwitterEdit, setIsTwitterEdit] = useState(false);
+  const [isProfileEdit, setIsProfileEdit] = useState(false);
+  const [isUserNameEdit, setIsUserNameEdit] = useState(false);
   const [isLinkedinEdit, setIsLinkedinEdit] = useState(false);
+  const [isEditProfile, setIsEditProfile] = useState(false);
+  const [newFirstname, setNewFirstname] = useState("");
+  const [newLastname, setNewLastname] = useState("");
   const [linkedinLink, setLinkedinLink] = useState("Network Platform");
   const { palette } = useTheme();
   const navigate = useNavigate();
@@ -40,6 +50,12 @@ const UserWidget = ({ userId, picturePath }) => {
     setLinkedinLink(event.target.value);
   };
 
+  const saveFirstName = (event) => {
+    setNewFirstname(event.target.value);
+  };
+  const saveLastName = (event) => {
+    setNewLastname(event.target.value);
+  };
   const saveTwitterLink = (event) => {
     setTwitterLink(event.target.value);
   };
@@ -47,10 +63,29 @@ const UserWidget = ({ userId, picturePath }) => {
     setIsLinkedinEdit(!isLinkedinEdit);
   };
 
-   const enableTwitterEdit = () => {
+  const enableTwitterEdit = () => {
     setIsTwitterEdit(!istwitterEdit);
   };
 
+  const handleEditProfile = (event) => {
+    setIsEditProfile(!isEditProfile);
+  };
+
+  const enableUserNameEdit = () => {
+    setIsUserNameEdit(!isUserNameEdit);
+  };
+
+  const renderName = () => {
+    if (newFirstname && newLastname) {
+      return `${newFirstname} ${newLastname}`;
+    } else if (newFirstname) {
+      return `${newFirstname} ${lastName}`;
+    } else if (newLastname) {
+      return `${firstName} ${newLastname}`;
+    } else {
+      return `${firstName} ${lastName}`;
+    }
+  };
   useEffect(() => {
     getUser();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -72,31 +107,69 @@ const UserWidget = ({ userId, picturePath }) => {
   return (
     <WidgetWrapper>
       {/* FIRST ROW */}
-      <FlexBetween
-        gap="0.5rem"
-        pb="1.1rem"
-        onClick={() => navigate(`/profile/${userId}`)}
-      >
+      <FlexBetween gap="0.5rem" pb="1.1rem">
         <FlexBetween gap="1rem">
           <UserImage image={picturePath} />
           <Box>
-            <Typography
-              variant="h4"
-              color={dark}
-              fontWeight="500"
-              sx={{
-                "&:hover": {
-                  color: palette.primary.light,
-                  cursor: "pointer",
-                },
-              }}
-            >
-              {firstName} {lastName}
-            </Typography>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Typography
+                variant="h4"
+                color={dark}
+                fontWeight="500"
+                sx={{
+                  "&:hover": {
+                    color: palette.primary.light,
+                    cursor: "pointer",
+                  },
+                }}
+                onClick={() => navigate(`/profile/${userId}`)} // This should work for name only
+              >
+                {renderName()}
+                {isEditProfile && isUserNameEdit && (
+                  <TextField
+                    onChange={saveFirstName}
+                    variant="outlined"
+                    fullWidth
+                    placeholder="Enter first name"
+                    InputProps={{ style: textFieldStyle }}
+                    margin="dense"
+                  />
+                )}
+                {isEditProfile && isUserNameEdit && (
+                  <TextField
+                    onChange={saveLastName}
+                    variant="outlined"
+                    fullWidth
+                    placeholder="Enter last name"
+                    InputProps={{ style: textFieldStyle }}
+                    margin="dense"
+                  />
+                )}
+              </Typography>
+
+              {isEditProfile && (
+                <EditOutlined
+                  sx={{
+                    color: main,
+                    cursor: "pointer",
+                    position: "sticky",
+                    marginLeft: "12px",
+                    textAlign: "center",
+                    fontSize: "19px",
+                  }}
+                  onClick={enableUserNameEdit} // Independent action for editing
+                />
+              )}
+            </div>
+
             <Typography color={medium}>{friends.length} friends</Typography>
           </Box>
         </FlexBetween>
-        <ManageAccountsOutlined />
+
+        <ManageAccountsOutlined
+          onClick={handleEditProfile}
+          sx={{ cursor: "pointer" }}
+        />
       </FlexBetween>
 
       <Divider />
@@ -106,10 +179,22 @@ const UserWidget = ({ userId, picturePath }) => {
         <Box display="flex" alignItems="center" gap="1rem" mb="0.5rem">
           <LocationOnOutlined fontSize="large" sx={{ color: main }} />
           <Typography color={medium}>{location}</Typography>
+          {isEditProfile && (
+              <EditOutlined
+                sx={{ color: main, cursor: "pointer", position: "sticky" }}
+                onClick={enableTwitterEdit}
+              />
+            )}
         </Box>
         <Box display="flex" alignItems="center" gap="1rem">
           <WorkOutlineOutlined fontSize="large" sx={{ color: main }} />
           <Typography color={medium}>{occupation}</Typography>
+          {isEditProfile && (
+              <EditOutlined
+                sx={{ color: main, cursor: "pointer", position: "sticky" }}
+                onClick={enableTwitterEdit}
+              />
+            )}
         </Box>
       </Box>
 
@@ -134,9 +219,12 @@ const UserWidget = ({ userId, picturePath }) => {
       <Divider />
 
       {/* FOURTH ROW */}
-      <ClickAwayListener onClickAway={() => {
-         setIsLinkedinEdit(false); 
-        setIsTwitterEdit(false);}}>
+      <ClickAwayListener
+        onClickAway={() => {
+          setIsLinkedinEdit(false);
+          setIsTwitterEdit(false);
+        }}
+      >
         <Box p="1rem 0">
           <Typography fontSize="1rem" color={main} fontWeight="500" mb="1rem">
             Social Profiles
@@ -157,7 +245,7 @@ const UserWidget = ({ userId, picturePath }) => {
                 >
                   {twitterLink}
                 </Typography>
-                {istwitterEdit && (
+                {isEditProfile && istwitterEdit && (
                   <TextField
                     onChange={saveTwitterLink}
                     variant="outlined"
@@ -166,10 +254,12 @@ const UserWidget = ({ userId, picturePath }) => {
                 )}
               </Box>
             </FlexBetween>
-            <EditOutlined
-              sx={{ color: main, cursor: "pointer", position: 'sticky' }}
-              onClick={enableTwitterEdit}
-            />
+            {isEditProfile && (
+              <EditOutlined
+                sx={{ color: main, cursor: "pointer", position: "sticky" }}
+                onClick={enableTwitterEdit}
+              />
+            )}
           </FlexBetween>
 
           <FlexBetween gap="1rem">
@@ -182,12 +272,12 @@ const UserWidget = ({ userId, picturePath }) => {
                 <Typography
                   color={medium}
                   sx={{
-                    maxWidth: "300px", 
+                    maxWidth: "300px",
                   }}
                 >
                   {linkedinLink}
                 </Typography>
-                {isLinkedinEdit && (
+                {isEditProfile && isLinkedinEdit && (
                   <TextField
                     onChange={saveLinkedin}
                     variant="outlined"
@@ -196,11 +286,26 @@ const UserWidget = ({ userId, picturePath }) => {
                 )}
               </Box>
             </FlexBetween>
-            <EditOutlined
-              sx={{ color: main, cursor: "pointer", position: 'sticky'}}
-              onClick={enableLinkedinEdit}
-            />
+            {isEditProfile && (
+              <EditOutlined
+                sx={{ color: main, cursor: "pointer", position: "sticky" }}
+                onClick={enableLinkedinEdit}
+              />
+            )}
           </FlexBetween>
+        { isEditProfile && <Box display="flex" justifyContent="flex-end" alignItems="center" mt="1rem">
+            <Button
+              sx={{
+                color: palette.background.alt,
+                backgroundColor: palette.primary.main,
+                borderRadius: "3rem",
+              }}
+              onClick={handleEditProfile}
+            >
+              POST
+            </Button>
+          </Box>
+}
         </Box>
       </ClickAwayListener>
     </WidgetWrapper>

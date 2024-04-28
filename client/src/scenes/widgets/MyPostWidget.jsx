@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import {
   Box,
+  Grid,
   Divider,
   Typography,
   InputBase,
@@ -17,6 +18,8 @@ import {
   IconButton,
   useMediaQuery,
 } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { RiOpenaiFill, RiOpenaiLine } from "react-icons/ri";
 import FlexBetween from "components/FlexBetween";
 import Dropzone from "react-dropzone";
 import UserImage from "components/UserImage";
@@ -26,10 +29,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "state";
 import { ClickAwayListener } from "@mui/material";
 
-
 const MyPostWidget = ({ picturePath }) => {
+  // const [hashtag]=useState("#animey #onepiece #zoro #naruto");
   const dispatch = useDispatch();
   const [isImage, setIsImage] = useState(false);
+  const [isAiEnabled, setIsAiEnabled] = useState(false);
+  const [isImageGenEnabled, setIsImageGenEnabled] = useState(false);
+  const [inputAiContent, setInputAiContent] = useState("");
+  const [inputImageContent, setInputImageContent] = useState("");
   const [image, setImage] = useState(null);
   const [post, setPost] = useState("");
   const { palette } = useTheme();
@@ -38,6 +45,14 @@ const MyPostWidget = ({ picturePath }) => {
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
   const mediumMain = palette.neutral.mediumMain;
   const medium = palette.neutral.medium;
+  const [imageUrl, setImageUrl] = useState("");
+
+  const handleGenerateImage = () => {
+    // Set the predefined image URL to display in the main layout
+    setImageUrl(
+      "https://blog.paperspace.com/content/images/2022/07/dallemini.png"
+    );
+  };
 
   const handlePost = async () => {
     const formData = new FormData();
@@ -59,6 +74,14 @@ const MyPostWidget = ({ picturePath }) => {
     setPost("");
   };
 
+  function handleAIinputField() {
+    setIsAiEnabled(!isAiEnabled);
+  }
+
+  function handleImageGen() {
+    setIsImageGenEnabled(!isImageGenEnabled);
+  }
+
   return (
     <WidgetWrapper>
       <FlexBetween gap="1.5rem">
@@ -75,9 +98,117 @@ const MyPostWidget = ({ picturePath }) => {
           }}
         />
       </FlexBetween>
-      
+      {/* prompt generatin */}
+      {isAiEnabled && (
+        <Box
+          sx={{
+            position: "relative",
+            width: "100%", // Adjust width as needed
+          }}
+        >
+          <InputBase
+            placeholder="How can i help you?"
+            onChange={(e) => setInputAiContent(e.target.value)}
+            value={inputAiContent}
+            sx={{
+              width: "100%",
+              backgroundColor: palette.neutral.light,
+              borderRadius: "1rem",
+              padding: "2rem 3rem",
+              marginTop: "1rem",
+            }}
+          />
+          <IconButton
+            sx={{
+              position: "absolute",
+              right: 16, // Adjust the right position as needed
+              bottom: 16, // Adjust the bottom position as needed
+              color: palette.background.alt, // Using your provided color
+              backgroundColor: palette.primary.main, // Using your provided background color
+              borderRadius: "3rem", // Using your provided border radius
+              ":hover": {
+                backgroundColor: "primary.dark", // Adjust hover background color as needed
+              },
+            }}
+            onClick={() => {
+              setInputAiContent("#anime #onepiece #naruto #zoro");
+            }}
+          >
+            <SendIcon />
+          </IconButton>
+        </Box>
+      )}
+
+      {/* image gen */}
+      {isImageGenEnabled && (
+        <Grid container direction="column">
+          <Grid item>
+            <Box
+              sx={{
+                position: "relative", // Parent Box with relative position
+                width: "100%",
+              }}
+            >
+              {/* InputBase for entering text */}
+              <InputBase
+                placeholder="Describe the image"
+                onChange={(e) => setInputImageContent(e.target.value)}
+                value={inputImageContent}
+                sx={{
+                  width: "100%",
+                  marginTop: "1rem",
+                  backgroundColor: palette.neutral.light,
+                  borderRadius: "1rem",
+                  padding: "2rem 3rem",
+                  position: "relative", // Required for absolute positioning
+                }}
+              />
+
+              {/* IconButton should be in the InputBase and not move */}
+              <IconButton
+                sx={{
+                  position: "absolute", // Keeps it fixed within the parent
+                  right: 16, // Aligns to the right
+                  top: "50%", // Centers vertically within the input
+                  transform: "translateY(-50%)", // Ensures perfect vertical alignment
+                  color: palette.background.alt,
+                  backgroundColor: palette.primary.main,
+                  borderRadius: "3rem",
+                  ":hover": {
+                    backgroundColor: "primary.dark",
+                  },
+                }}
+                onClick={handleGenerateImage}
+              >
+                <SendIcon />
+              </IconButton>
+            </Box>
+          </Grid>
+
+          {/* Image rendered in a separate Grid item */}
+          {imageUrl && (
+            <Grid item>
+              <Box
+                sx={{
+                  textAlign: "center",
+                  marginTop: "2rem", // Space to avoid IconButton overlap
+                }}
+              >
+                <img
+                  src={imageUrl}
+                  alt="Generated Content"
+                  style={{
+                    maxWidth: "100%",
+                    borderRadius: "10px", // Optional rounded border
+                  }}
+                />
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      )}
+
       {isImage && (
-        <ClickAwayListener onClickAway={() => setIsImage(false)}>
         <Box
           border={`1px solid ${medium}`}
           borderRadius="5px"
@@ -120,14 +251,13 @@ const MyPostWidget = ({ picturePath }) => {
             )}
           </Dropzone>
         </Box>
-        </ClickAwayListener>
       )}
 
       <Divider sx={{ margin: "1.25rem 0" }} />
 
       <FlexBetween>
         <FlexBetween gap="0.25rem" onClick={() => setIsImage(!isImage)}>
-          <ImageOutlined sx={{ color: mediumMain,cursor: "pointer", }} />
+          <ImageOutlined sx={{ color: mediumMain, cursor: "pointer" }} />
           <Typography
             color={mediumMain}
             sx={{ "&:hover": { cursor: "pointer", color: medium } }}
@@ -138,9 +268,13 @@ const MyPostWidget = ({ picturePath }) => {
 
         {isNonMobileScreens ? (
           <>
-            <FlexBetween gap="0.25rem">
-              <GifBoxOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Clip</Typography>
+            <FlexBetween
+              gap="0.25rem"
+              sx={{ "&:hover": { cursor: "pointer", color: medium } }}
+              onClick={handleAIinputField}
+            >
+              <RiOpenaiLine sx={{ color: mediumMain, fontSize: "10rem" }} />
+              <Typography color={mediumMain}>Gen Content</Typography>
             </FlexBetween>
 
             <FlexBetween gap="0.25rem">
@@ -148,9 +282,13 @@ const MyPostWidget = ({ picturePath }) => {
               <Typography color={mediumMain}>Attachment</Typography>
             </FlexBetween>
 
-            <FlexBetween gap="0.25rem">
+            <FlexBetween
+              gap="0.25rem"
+              sx={{ "&:hover": { cursor: "pointer", color: medium } }}
+              onClick={handleImageGen}
+            >
               <MicOutlined sx={{ color: mediumMain }} />
-              <Typography color={mediumMain}>Audio</Typography>
+              <Typography color={mediumMain}>Gen Image</Typography>
             </FlexBetween>
           </>
         ) : (
