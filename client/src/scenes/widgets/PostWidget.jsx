@@ -64,7 +64,11 @@ const PostWidget = ({
           height="auto"
           alt="post"
           style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
-          src={`http://localhost:3001/assets/${picturePath}`}
+          src={
+            picturePath.includes("us-east")
+              ? picturePath
+              : `http://localhost:3001/assets/${picturePath}`
+          }
         />
       )}
       <FlexBetween mt="0.25rem">
@@ -75,7 +79,6 @@ const PostWidget = ({
                 <FavoriteOutlined sx={{ color: primary }} />
               ) : (
                 <FavoriteBorderOutlined />
-                
               )}
             </IconButton>
             <Typography>{likeCount}</Typography>
@@ -83,7 +86,7 @@ const PostWidget = ({
 
           <FlexBetween gap="0.3rem">
             <IconButton onClick={() => setIsComments(!isComments)}>
-            <ChatBubbleOutlineOutlined />
+              <ChatBubbleOutlineOutlined />
             </IconButton>
             <Typography>{comments.length}</Typography>
           </FlexBetween>

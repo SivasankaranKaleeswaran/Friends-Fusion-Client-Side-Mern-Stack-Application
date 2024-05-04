@@ -47,22 +47,73 @@ const MyPostWidget = ({ picturePath }) => {
   const medium = palette.neutral.medium;
   const [imageUrl, setImageUrl] = useState("");
 
-  const handleGenerateImage = () => {
-    // Set the predefined image URL to display in the main layout
-    setImageUrl(
-      "https://blog.paperspace.com/content/images/2022/07/dallemini.png"
-    );
+  const handleGenerateImage = async () => {
+    // Make a POST request to the API to generate an image
+    const imageResponse = await fetch(`http://localhost:3001/ai/image`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({"prompt": inputImageContent}),
+    });
+  
+    if (!imageResponse.ok) {
+      console.error("Failed to fetch image:", imageResponse.statusText);
+      return;
+    }
+  
+    const imageData = await imageResponse.json(); // Parse JSON response
+  
+    if (imageData && imageData.location) {
+      // Set the image URL using the URL from the response
+      setImageUrl(imageData.location);
+    } else {
+      // Handle the case where imageUrl is missing in the response
+      console.error("No image URL found in response");
+    }
   };
+
+  const handleGenerateText = async () => {
+    // Make a POST request to the API to generate an image
+    const textResponse = await fetch(`http://localhost:3001/ai/text`, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({"prompt": inputAiContent}),
+    });
+  
+    if (!textResponse.ok) {
+      console.error("Failed to fetch image:", textResponse.statusText);
+      return;
+    }
+  
+    const textData = await textResponse.json(); // Parse JSON response
+  
+    if (textData && textData.text) {
+      // Set the image URL using the URL from the response
+      setInputAiContent(textData.text);
+      console.log(textData.text);
+    } else {
+      // Handle the case where imageUrl is missing in the response
+      console.error("No image URL found in response");
+    }
+  };
+  
 
   const handlePost = async () => {
     const formData = new FormData();
     formData.append("userId", _id);
     formData.append("description", post);
-    if (image) {
-      formData.append("picture", image);
-      formData.append("picturePath", image.name);
-    }
-
+        if(imageUrl)
+      {
+        formData.append("picturePath", imageUrl);
+      }
+      else if(image) {
+        formData.append("picture", image);
+        formData.append("picturePath", image.name);
+      }
+ 
     const response = await fetch(`http://localhost:3001/posts`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
@@ -130,9 +181,7 @@ const MyPostWidget = ({ picturePath }) => {
                 backgroundColor: "primary.dark", // Adjust hover background color as needed
               },
             }}
-            onClick={() => {
-              setInputAiContent("#anime #onepiece #naruto #zoro");
-            }}
+            onClick={handleGenerateText}
           >
             <SendIcon />
           </IconButton>
