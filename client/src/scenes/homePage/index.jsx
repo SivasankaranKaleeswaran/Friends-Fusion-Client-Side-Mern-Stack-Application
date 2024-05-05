@@ -25,7 +25,7 @@ const HomePage = () => {
               top: 0, 
               maxHeight: 'calc(100vh - 100px)',
               overflowY: 'auto'}}>
-          <UserWidget userId={_id} picturePath={picturePath} />
+          <UserWidget userId={_id} picturePath={picturePath} value={"homepage"} />
         </Box>
         <Box
           flexBasis={isNonMobileScreens ? "42%" : undefined}

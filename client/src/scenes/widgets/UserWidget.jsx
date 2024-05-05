@@ -19,20 +19,27 @@ const textFieldStyle = {
   marginDown: "10px",
 };
 
-const UserWidget = ({ userId, picturePath }) => {
+const UserWidget = ({ userId, picturePath, value}) => {
   const [user, setUser] = useState(null);
-  const [twitterLink, setTwitterLink] = useState("Social Network");
+
   const [istwitterEdit, setIsTwitterEdit] = useState(false);
   const [isProfileEdit, setIsProfileEdit] = useState(false);
   const [isUserNameEdit, setIsUserNameEdit] = useState(false);
   const [isLinkedinEdit, setIsLinkedinEdit] = useState(false);
   const [isEditProfile, setIsEditProfile] = useState(false);
+  const [isOccupationEdit, setIsOccupationEdit] = useState(false);
+  const [isLocationEdit, setIsLocationEdit] = useState(false);
+  const [newLocation, setNewLocation] = useState("");
+  const [newOccupation, setNewOccupation] = useState("");
   const [newFirstname, setNewFirstname] = useState("");
   const [newLastname, setNewLastname] = useState("");
-  const [linkedinLink, setLinkedinLink] = useState("Network Platform");
+  const [linkedinLink, setLinkedinLink] = useState("");
+  const [twitterLink, setTwitterLink] = useState("");
   const { palette } = useTheme();
   const navigate = useNavigate();
   const token = useSelector((state) => state.token);
+  const { _id } = useSelector((state) => state.user);
+
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
@@ -46,8 +53,59 @@ const UserWidget = ({ userId, picturePath }) => {
     setUser(data);
   };
 
+  const [updatedUserData, setUpdatedUserData] = useState({});
+
+  useEffect(() => {
+    const data = {};
+
+    if (newLocation) data.location = newLocation;
+    if (newOccupation) data.occupation = newOccupation;
+    if (newFirstname) data.firstName = newFirstname;
+    if (newLastname) data.lastName = newLastname;
+    if (linkedinLink) data.linkedin = linkedinLink;
+    if (twitterLink) data.twitter = twitterLink;
+
+    setUpdatedUserData(data);
+  }, [
+    newLocation,
+    newOccupation,
+    newFirstname,
+    newLastname,
+    linkedinLink,
+    twitterLink,
+  ]);
+
+  const handleUpdateContent = async () => {
+    console.log(value);
+
+    console.log(`Updating user ${userId} with data`, updatedUserData);
+    const response = await fetch(
+      `http://localhost:3001/user/update/${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedUserData),
+      }
+    );
+
+    const data = await response.json();
+    //setUser(data);
+    console.log("data");
+  };
+
   const saveLinkedin = (event) => {
     setLinkedinLink(event.target.value);
+  };
+
+  const saveLocation = (event) => {
+    setNewLocation(event.target.value);
+  };
+
+  const saveOccupation = (event) => {
+    setNewOccupation(event.target.value);
   };
 
   const saveFirstName = (event) => {
@@ -73,6 +131,14 @@ const UserWidget = ({ userId, picturePath }) => {
 
   const enableUserNameEdit = () => {
     setIsUserNameEdit(!isUserNameEdit);
+  };
+
+  const enableOccupationEdit = () => {
+    setIsOccupationEdit(!isOccupationEdit);
+  };
+
+  const enableLocationEdit = () => {
+    setIsLocationEdit(!isLocationEdit);
   };
 
   const renderName = () => {
@@ -166,10 +232,10 @@ const UserWidget = ({ userId, picturePath }) => {
           </Box>
         </FlexBetween>
 
-        <ManageAccountsOutlined
+       {value === "profilepage" && _id === userId && <ManageAccountsOutlined
           onClick={handleEditProfile}
           sx={{ cursor: "pointer" }}
-        />
+        />}
       </FlexBetween>
 
       <Divider />
@@ -180,21 +246,27 @@ const UserWidget = ({ userId, picturePath }) => {
           <LocationOnOutlined fontSize="large" sx={{ color: main }} />
           <Typography color={medium}>{location}</Typography>
           {isEditProfile && (
-              <EditOutlined
-                sx={{ color: main, cursor: "pointer", position: "sticky" }}
-                onClick={enableTwitterEdit}
-              />
-            )}
+            <EditOutlined
+              sx={{ color: main, cursor: "pointer", position: "sticky" }}
+              onClick={enableLocationEdit}
+            />
+          )}
+          {isEditProfile && isLocationEdit && (
+            <TextField onChange={saveLocation} variant="outlined" fullWidth />
+          )}
         </Box>
         <Box display="flex" alignItems="center" gap="1rem">
           <WorkOutlineOutlined fontSize="large" sx={{ color: main }} />
           <Typography color={medium}>{occupation}</Typography>
           {isEditProfile && (
-              <EditOutlined
-                sx={{ color: main, cursor: "pointer", position: "sticky" }}
-                onClick={enableTwitterEdit}
-              />
-            )}
+            <EditOutlined
+              sx={{ color: main, cursor: "pointer", position: "sticky" }}
+              onClick={enableOccupationEdit}
+            />
+          )}
+          {isEditProfile && isOccupationEdit && (
+            <TextField onChange={saveOccupation} variant="outlined" fullWidth />
+          )}
         </Box>
       </Box>
 
@@ -293,19 +365,25 @@ const UserWidget = ({ userId, picturePath }) => {
               />
             )}
           </FlexBetween>
-        { isEditProfile && <Box display="flex" justifyContent="flex-end" alignItems="center" mt="1rem">
-            <Button
-              sx={{
-                color: palette.background.alt,
-                backgroundColor: palette.primary.main,
-                borderRadius: "3rem",
-              }}
-              onClick={handleEditProfile}
+          {isEditProfile && (
+            <Box
+              display="flex"
+              justifyContent="flex-end"
+              alignItems="center"
+              mt="1rem"
             >
-              POST
-            </Button>
-          </Box>
-}
+              <Button
+                sx={{
+                  color: palette.background.alt,
+                  backgroundColor: palette.primary.main,
+                  borderRadius: "3rem",
+                }}
+                onClick={handleUpdateContent}
+              >
+                POST
+              </Button>
+            </Box>
+          )}
         </Box>
       </ClickAwayListener>
     </WidgetWrapper>

@@ -123,6 +123,11 @@ const MyPostWidget = ({ picturePath }) => {
     dispatch(setPosts({ posts }));
     setImage(null);
     setPost("");
+    setIsAiEnabled(false);
+    setIsImageGenEnabled(false);
+    setImageUrl("");
+    setInputAiContent("");
+    setInputImageContent("");
   };
 
   function handleAIinputField() {

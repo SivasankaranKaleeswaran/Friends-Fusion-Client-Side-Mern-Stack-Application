@@ -50,7 +50,7 @@ const ProfilePage = () => {
                   top: '64px',
                   maxHeight: 'calc(100vh - 100px)',
                   overflowY: 'auto'}}>
-          <UserWidget userId={userId} picturePath={user.picturePath} />
+          <UserWidget userId={userId} picturePath={user.picturePath} value={"profilepage"} />
           <Box m="2rem 0" />
           <FriendListWidget userId={userId} />
         </Box>
