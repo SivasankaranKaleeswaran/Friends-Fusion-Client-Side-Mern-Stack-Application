@@ -1,4 +1,4 @@
-# Friends Fusion: Revolutionizing Social Media with AI Integration
+# Friends Fusion: Social Media with GenAI
 
 ## Introduction
 Friends Fusion is the latest innovation in social media, seamlessly integrating AI to enhance user interaction and creativity. It's designed to connect users, enable content creation, and foster community engagement through advanced AI functionalities.
